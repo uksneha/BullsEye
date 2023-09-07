@@ -1,0 +1,124 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #CCD8E1;
+}
+
+.logo-container{
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    margin-left: 30px;
+    align-items: center;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    margin-top:10px;
+}
+
+.company-logo {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.company-name {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.search-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 25px;
+    margin-right: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.5s ease;
+}
+
+.search-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.search-card input[type="text"] {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: "Poppins", sans-serif;
+    padding: 8px;
+    transition: border-color 0.3s ease;
+}
+
+.search-card input[type="text"]:focus {
+    border-color: #04c3ff;
+}
+
+.search-card button {
+    background-color: #04c3ff;
+    color: #fff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 25px;
+    margin-left: 10px;
+}
+.login-container {
+    position: absolute;
+    font-family: "Poppins", sans-serif;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.login-button{
+    background-color: #fff;
+    color: #000;
+    border-radius: 25px;
+    padding: 10px 20px;
+    margin-right: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+.signup-button {
+    background-color: #fff;
+    color: #000;
+    border-radius: 25px;
+    padding: 10px 20px;
+    margin-left: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    margin-right: 50px;
+    font-weight: bold;
+}
+
+.login-button:hover,
+.signup-button:hover {
+    background-color: #04c3ff;
+    color: #fff;
+}
+
+.back-graph-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    height: 500px;
+    margin-top:100px;
+    margin-right:200px;
+}
+
+.back-graph-img {
+    max-height: 500px;
+    object-fit: cover;
+    object-position: center right;
+}
