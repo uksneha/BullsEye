@@ -1,0 +1,296 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Webpage</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/search.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3"></script>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="{% static 'images/company_logo.png' %}" alt="Company Logo" class="company-logo">
+        <div class="company-name">Bulls Eye</div>
+    </div>
+
+    <div class="login-container">
+        <div class="search-card">
+            <input type="text" name="q" id="search-input" placeholder="Search..." required>
+            <button type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+            <div id="search-suggestions" class="suggestions"></div>
+        </div>
+        <a class="login-button" href="/login">Login</a>
+        <a class="signup-button" href="/signup">Signup</a>
+    </div>
+
+    <div class="chart-companyreturns">
+        <h3>Company Returns</h3>
+        <canvas id="exchangeReturnsChart"></canvas>
+    </div>
+    <div class="chart-dividend">
+        <h3>Dividend</h3>
+        <canvas id="dividendChart"></canvas>
+    </div>
+    <div class="chart-balancesheet">
+        <h3>Balance Sheet</h3>
+        <canvas id="balanceSheetChart"></canvas>
+    </div>
+    <div class="chart-cashflow">
+        <h3>Cash Flow</h3>
+        <canvas id="cashFlowChart"></canvas>
+    </div>
+    <div class="chart-shareholding">
+        <h3>Share Holding Pattern</h3>
+        <canvas id="shareHoldingPatternChart"></canvas>
+    </div>
+
+    <script>
+    document.getElementById('search-input').addEventListener('input', async function () {
+        const query = this.value;
+        const response = await fetch(`http://localhost:6050/corporate_data/search?q=${query}`);
+        const data = await response.json();
+
+        const suggestionsDiv = document.getElementById('search-suggestions');
+        suggestionsDiv.innerHTML = '';
+
+        for (const item of data) {
+            const suggestion = document.createElement('div');
+            suggestion.textContent = `${item.CompanyName} (${item.ISIN})`;
+            suggestionsDiv.appendChild(suggestion);
+        }
+    });
+
+    const data = {{ data|safe }};
+
+    // ExchangeReturns Chart
+    const exchangeReturnsCtx = document.getElementById('exchangeReturnsChart').getContext('2d');
+    new Chart(exchangeReturnsCtx, {
+        type: 'bar',
+        data: {
+            labels: data.ExchangeReturns.map(item => item.TimePeriod),
+            datasets: [{
+                label: 'Company Returns in Percentage',
+                data: data.ExchangeReturns.map(item => item.Value),
+                backgroundColor: 'cyan'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20
+                    }
+                },
+                afterDraw: function(chart, easing) {
+                    const ctx = chart.ctx;
+                    const yZeroLine = chart.scales['y'].getPixelForValue(0);
+                    ctx.save();
+                    ctx.strokeStyle = '#000'; // Line color
+                    ctx.lineWidth = 1; // Line width
+                    ctx.beginPath();
+                    ctx.moveTo(0, yZeroLine);
+                    ctx.lineTo(chart.width, yZeroLine);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+
+
+    // CashFlow Chart
+    const cashFlowCtx = document.getElementById('cashFlowChart').getContext('2d');
+    new Chart(cashFlowCtx, {
+        type: 'line',
+        data: {
+            labels: data.CashFlow.map(item => item.YearEnd),
+            datasets: [{
+                label: 'Free Cash Flow',
+                data: data.CashFlow.map(item => item.FreeCashFlow),
+                borderColor: 'rgba(236, 174, 73, 1)',
+                backgroundColor: 'rgba(236, 174, 73, 1)',
+                fill: false,
+                pointRadius: 5,
+                pointBackgroundColor: 'white'
+            }, {
+                label: 'Net Cash From Operating Activities',
+                data: data.CashFlow.map(item => item.NetCashFromOperatingAct),
+                borderColor: 'rgba(209, 73, 91, 1)',
+                backgroundColor: 'rgba(209, 73, 91, 1)',
+                fill: false,
+                pointRadius: 5,
+                pointBackgroundColor: 'white'
+            }, {
+                label: 'Net Cash Used in Financing Activities',
+                data: data.CashFlow.map(item => item.NetCashUsedFinancingAct),
+                borderColor: 'rgba(116, 112, 252, 1)',
+                backgroundColor: 'rgba(116, 112, 252, 1)',
+                fill: false,
+                pointRadius: 5,
+                pointBackgroundColor: 'white'
+            }, {
+                label: 'Net Cash Used in Investing Activities',
+                data: data.CashFlow.map(item => item.NetCashUsedInvestingAct),
+                borderColor: 'rgba(1, 61, 91, 1)',
+                backgroundColor: 'rgba(1, 61, 91, 1)',
+                fill: false,
+                pointRadius: 5,
+                pointBackgroundColor: 'white'
+            }]
+        },
+       options: {
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20
+                    }
+                }
+            }
+        },
+        barThickness: 50
+    });
+
+    // Dividend Chart
+    const dividendCtx = document.getElementById('dividendChart').getContext('2d');
+    new Chart(dividendCtx, {
+        type: 'bar',
+        data: {
+            labels: data.Dividend.map(item => item.YearEnd),
+            datasets: [
+            {
+                type: 'line',
+                label: 'Dividend yield (FY) %',
+                data: data.Dividend.map(item => item.DivYieldPerc),
+                borderColor: 'rgba(255, 148, 0, 1)',
+                backgroundColor: 'rgba(255, 148, 0, 1)',
+                fill: false,
+                order: 0,
+                pointRadius: 5,
+                pointBackgroundColor: 'white'
+            },
+            {
+                label: 'Dividends per share (FY)',
+                data: data.Dividend.map(item => item.DpsFy),
+                borderColor: 'rgba(69, 138, 255, 1)',
+                backgroundColor: 'rgba(69, 138, 255, 1)',
+                order: 1,
+                barThickness: 50
+            }
+            ]
+        },
+    });
+
+    // BalanceSheet Chart
+    const balanceSheetCtx = document.getElementById('balanceSheetChart').getContext('2d');
+    new Chart(balanceSheetCtx, {
+        type: 'bar',
+        data: {
+            labels: data.BalanceSheet.map(item => item.YearEnd),
+            datasets: [{
+                label: 'Total Assets',
+                data: data.BalanceSheet.map(item => item.TotalAssets),
+                backgroundColor: 'rgba(2, 48, 71, 1)'
+            }, {
+                label: 'Total Equity',
+                data: data.BalanceSheet.map(item => item.TotalEquity),
+                backgroundColor: 'rgba(34, 158, 188, 1)'
+            }, {
+                label: 'Total Liabilities',
+                data: data.BalanceSheet.map(item => item.TotalLiabilities),
+                backgroundColor: 'rgba(141, 202, 230, 1)'
+            }]
+        },
+        options: {
+            scales: {
+                x: {stacked: true},
+                y: {stacked: true}
+            }
+        }
+    });
+
+    // ShareHoldingPattern Chart
+
+    const shareHoldingPatternData = {
+    labels: Object.keys(data.ShareHoldingPattern),
+    datasets: [{
+        data: Object.values(data.ShareHoldingPattern),
+        backgroundColor: [
+        'rgba(158, 141, 252, 0.8)',
+        'rgba(14, 59, 102, 0.8)',
+        'rgba(244, 211, 94, 0.8)',
+        'rgba(249, 87, 56, 0.8)',
+        'rgba(12, 147, 150, 0.8)'
+        ],
+        borderColor: [
+        'rgba(158, 141, 252, 1)',
+        'rgba(14, 59, 102, 1)',
+        'rgba(244, 211, 94, 1)',
+        'rgba(249, 87, 56, 1)',
+        'rgba(12, 147, 150, 1)'
+        ],
+        borderWidth: 1
+    }]
+    };
+    new Chart(document.getElementById('shareHoldingPatternChart'), {
+        type: 'doughnut',
+        data: shareHoldingPatternData,
+        options: {
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+
+
+    document.getElementById('search-input').addEventListener('input', async function () {
+        const query = this.value;
+        const response = await fetch(`/search_api?q=${query}`);
+        const data = await response.json();
+
+        const suggestionsDiv = document.getElementById('search-suggestions');
+        suggestionsDiv.innerHTML = '';
+
+        for (const item of data) {
+            const suggestion = document.createElement('div');
+            suggestion.textContent = `${item.CompanyName} (${item.ISIN})`;
+            suggestionsDiv.appendChild(suggestion);
+        }
+    });
+
+
+</script>
+
+</body>
+</html>
+

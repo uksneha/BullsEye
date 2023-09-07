@@ -1,0 +1,39 @@
+.chart-companyreturns {
+    width: 1000px;
+    height: 800px;
+    padding: 20px;
+    align-items: left;
+}
+.chart-cashflow {
+    width: 1000px;
+    height: 800px;
+    padding: 20px;
+    align-items: left;
+}
+.chart-dividend {
+    width: 1000px;
+    height: 800px;
+    padding: 20px;
+    align-items: left;
+}
+.chart-balancesheet {
+    width: 1000px;
+    height: 800px;
+    padding: 20px;
+    align-items: left;
+}
+.chart-shareholding {
+    width: 450px;
+    height: 450px;
+    padding: 20px;
+    align-items: right;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    height: 100vh;
+    margin: 0;
+    background-color: #fff;
+}
