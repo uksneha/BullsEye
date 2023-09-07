@@ -22,8 +22,8 @@ static_base_image = '/static/images'
 urlpatterns = [
     path('search_icon.ico', RedirectView.as_view(url=f'{static_base_image}/search_icon.ico'), name='search_icon'),
     path('admin/', admin.site.urls),
-    path('login/', include('bulls_eye.urls')),
-    path('signup/', include('bulls_eye.urls')),
+    # path('login/', include('bulls_eye.urls')),
+    # path('signup/', include('bulls_eye.urls')),
     path('', include('bulls_eye.urls')),
     # path('login/', RedirectView.as_view(template_name='login.html'), name='login'),
     # path('signup/', RedirectView.as_view(template_name='signup.html'), name='signup'),

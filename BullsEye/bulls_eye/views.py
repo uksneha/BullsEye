@@ -17,33 +17,20 @@ def signup(request):
     return render(request, 'signup.html')
 
 
-def get_data_from_api():
-    url = "http://localhost:6050/sample/INE208C01025"
+def get_data_from_api(comp_isin):
+    url = f"http://localhost:6050/corporate_data/companyinfo?isin={comp_isin}"
     response = requests.get(url)
     if response.status_code == 200:
-        print(response.json())
+        # print(response.json())
         return response.json()
     else:
         return None
 
 
 def search_result(request):
-    data = get_data_from_api()
+    isin = request.GET.get('isin')
+    data = get_data_from_api(isin)
     if data:
         return render(request, 'search_result.html', {'data': data})
     else:
         return render(request, 'error.html')
-
-# def search_api(request):
-#     query = request.GET.get('q', '')
-#     results = Item.objects.filter(CompanyName__icontains=query)[:5]
-#     data = [{'ISIN': result.ISIN, 'CompanyName': result.CompanyName} for result in results]
-#     return JsonResponse(data, safe=False)
-#
-#     items = []
-#     for hit in search_results['hits']['hits']:
-#         item_id = hit['_id']
-#         item = Item.objects.get(id=item_id)
-#         items.append(item)
-#
-#     return render(request, 'search.html', {'items': items})
