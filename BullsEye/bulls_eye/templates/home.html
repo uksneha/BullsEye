@@ -14,55 +14,83 @@
     <div class="company-name">Bulls Eye</div>
 </div>
 
-<!--<div class="search-card">-->
-<!--    <input type="text" name="q" id="search-input" placeholder="Search..." required>-->
-<!--    <button type="submit">-->
-<!--        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"-->
-<!--             stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--            <circle cx="11" cy="11" r="8"></circle>-->
-<!--            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>-->
-<!--        </svg>-->
-<!--    </button>-->
-<!--    <div id="search-suggestions" class="suggestions"></div>-->
-<!--</div>-->
-
 <div class="login-container">
-    <div class="search-card">
-        <input type="text" name="q" id="search-input" placeholder="Search..." required>
-        <button type="submit">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-        </button>
-        <div id="search-suggestions" class="suggestions"></div>
+    <div class="search-wrapper">
+        <div class="search-card">
+            <div class="search-input">
+                <input type="text" name="q" id="search-input" placeholder="Search..." required>
+                <div class="autocom-box" id="search-suggestions-list">
+                    <!-- Suggestions will appear here -->
+                </div>
+                <div class="icon">
+                    <button type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+<!--        <div id="search-suggestions" class="suggestions"></div>-->
     </div>
     <a class="login-button" href="/login">Login</a>
     <a class="signup-button" href="/signup">Signup</a>
 </div>
 
-<div class="back-graph-container">
-    <img src="{% static 'images/back_graph.jpg' %}" alt="Graph Image" class="back-graph-img">
-</div>
-
-<!--<div class="login-container">-->
-<!--    <a class="login-button" href="/login">Login</a>-->
-<!--    <a class="signup-button" href="/signup">Signup</a>-->
-
-<!--    <div class="search-card">-->
-<!--    <input type="text" name="q" id="search-input" placeholder="Search..." required>-->
-<!--    <button type="submit">-->
-<!--        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"-->
-<!--             stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--            <circle cx="11" cy="11" r="8"></circle>-->
-<!--            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>-->
-<!--        </svg>-->
-<!--    </button>-->
-<!--    <div id="search-suggestions" class="suggestions"></div>-->
-<!--</div>-->
+<!--<div class="back-graph-container">-->
+<!--    <img src="{% static 'images/back_graph.jpg' %}" alt="Graph Image" class="back-graph-img">-->
 <!--</div>-->
 
-<!--    <script src="{% static 'js/search.js' %}"></script>-->
+<script>
+
+    document.getElementById('search-input').addEventListener('input', async function () {
+        const query = this.value;
+        const response = await fetch(`http://localhost:6050/corporate_data/search?q=${query}`);
+        const data = await response.json();
+
+        const suggestionsList = document.getElementById('search-suggestions-list');
+        suggestionsList.innerHTML = '';
+
+        if (data.length > 0) {
+            for (const item of data) {
+                const suggestionItem = document.createElement('li');
+                const suggestionLink = document.createElement('a');
+                suggestionLink.href = '#'; // Use '#' as a placeholder link
+                suggestionLink.textContent = `${item.CompanyName} (${item.ISIN})`;
+                suggestionItem.style.cursor = "pointer"; // Make it apparent that the item is clickable
+                suggestionItem.addEventListener('click', function () {
+                    window.location.href = `/search_result/?isin=${item.ISIN}`;
+                });
+                suggestionItem.appendChild(suggestionLink);
+                suggestionsList.appendChild(suggestionItem);
+            }
+            suggestionsList.style.display = 'block'; // Show the dropdown
+        } else {
+            suggestionsList.style.display = 'none'; // Hide the dropdown
+        }
+    });
+
+
+    // Function to call your views.py function with item data
+    function callFunctionInViews(item) {
+        const url = `{% url 'search_result' %}?isin=${item.ISIN}`;
+
+        fetch(url)
+            .then(response => {
+                if (response.status === 200) {
+                    // Redirect to the search_result view
+                    window.location.href = url;
+                } else {
+                    // Handle any error here
+                    console.error('Error:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
 </body>
 </html>
